@@ -38,8 +38,9 @@ namespace TweetApp.Service.Services
                 var s=_userrepo.UpdateUserStatusLogIn(userexist.UserId);
                 var authClaims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, userexist.Email),
+                    new Claim(ClaimTypes.Email, userexist.Email),
                     new Claim(ClaimTypes.NameIdentifier, userexist.UserId.ToString()),
+                    new Claim(ClaimTypes.Name, userexist.Username),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
                 var token = GetToken(authClaims);
@@ -84,7 +85,7 @@ namespace TweetApp.Service.Services
                 bool isValidEmail = regex.IsMatch(usermodel.Email);
                 if (!isValidEmail)
                 {
-                    return new ServiceResponse<string>
+                    return new ServiceResponse<string>()
                     {
                         Data = "Unsuccessful",
                         Message = "Email is not valid",
@@ -92,9 +93,9 @@ namespace TweetApp.Service.Services
                         Success = false
                     };
                 }
-                if (usermodel.Email == "" || usermodel.FirstName == "" || usermodel.Gender == "" || usermodel.Password == "")
+                if (usermodel.Email == "" ||usermodel.Username=="" || usermodel.FirstName == "" || usermodel.Gender == "" || usermodel.Password == "")
                 {
-                    return new ServiceResponse<string>
+                    return new ServiceResponse<string>()
                     {
                         Data = "Unsuccessful",
                         Message = "Please Fill all the Mandatory Fields",
@@ -108,14 +109,25 @@ namespace TweetApp.Service.Services
                 {
                     return new ServiceResponse<string>()
                     {
-                        Message = "This Email already registered..try again with another Email Address",
+                        Message = "Email already registered..try again with another EmailId",
                         StatusCode = 401,
                         Success = false,
                         Data = null
                     };
                 }
-                bool result = await _userrepo.AddUser(_mapper.Map<User>(usermodel));
-                if (result)
+                var usernameExists = await _userrepo.GetUserByUsername(usermodel.Username);
+                if (usernameExists != null)
+                {
+                    return new ServiceResponse<string>()
+                    {
+                        Message = "Username already taken",
+                        StatusCode = 401,
+                        Success = false,
+                        Data = null
+                    };
+                }
+                var result = await _userrepo.AddUser(_mapper.Map<User>(usermodel));
+                if (result!=null)
                 {
                     return new ServiceResponse<string>()
                     {
@@ -223,7 +235,7 @@ namespace TweetApp.Service.Services
                 };
             }
         }
-        public async Task<ServiceResponse<string>> Logout(int id)
+        public async Task<ServiceResponse<string>> Logout(string id)
         {
             try
             {
@@ -267,7 +279,7 @@ namespace TweetApp.Service.Services
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.Now.AddHours(10),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );

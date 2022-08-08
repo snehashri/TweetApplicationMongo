@@ -2,11 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace TweetApp.Domain.Models
 {
@@ -16,14 +12,17 @@ namespace TweetApp.Domain.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
         public string Message { get; set; }
-        [BsonRepresentation(BsonType.ObjectId)]
-        [Required]
-        public string User_Id { get; set; }
+
+        [BsonRequired]
+        public string UserId { get; set; }
+        public User user { get; set; }
         public DateTime AddedDate { get; set; }
-        public IList<Comment> comments { get; set; }
+        public IList<Reply> TweetReplies { get; set; }
         public IList<User> Likes { get; set; }
 
-
-
     }
+
+    
+
+     
 }

@@ -14,7 +14,7 @@ namespace TweetApp.Service.Services
         Task<ServiceResponse<string>> UserLogin(LoginModelDto usermodel);
         Task<ServiceResponse<string>> ForgotPasword(ForgetPasswordModelDto usermodel);
         Task<ServiceResponse<string>> ResetPassword(ResetPasswordModelDto model);
-        Task<ServiceResponse<string>> Logout(int id);
+        Task<ServiceResponse<string>> Logout(string id);
 
 
     }

@@ -7,6 +7,7 @@ namespace TweetApp.Service.ModelDto
     {
         public string FirstName { get; set; }
         public string? LastName { get; set; }
+        public string Username { get; set; }
         public string Gender { get; set; }
         public DateTime? DOB { get; set; }
         public string Phone { get; set; }

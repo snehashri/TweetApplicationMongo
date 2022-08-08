@@ -1,46 +1,88 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TweetApp.Domain.DBContext;
+using TweetApp.Domain.DbSettings;
 using TweetApp.Domain.Models;
 
 namespace TweetApp.Domain.Repository
 {
-    public interface ITweetRepository
+    
+    public class TweetRepository:ITweetRepository
     {
-        Task<IEnumerable<Tweet>> GetAllTweets();
-        Task<IEnumerable<Tweet>> GetAllTweetsOfUser(int userid);
-        Task<bool> PostTweet(Tweet tweetmodel);
         
+        private readonly IMongoCollection<Tweet> _tweets;
        
-
-    }
-    public class TweetRepository : ITweetRepository
-    {
-        private readonly TweetAppDatabaseSettings _context;
-        public TweetRepository(TweetAppDatabaseSettings context)
+        public TweetRepository(IDbClient dbclient)
         {
-            _context = context;
+            _tweets = dbclient.GetTweetCollection();           
         }
         public async Task<IEnumerable<Tweet>> GetAllTweets()
         {
-            return await _context.Tweets.ToListAsync();
+            return await _tweets.Find(tweet => true).ToListAsync();
         }
 
-        public async Task<IEnumerable<Tweet>> GetAllTweetsOfUser(int userid)
+        public async Task<IEnumerable<Tweet>> GetTweetsByUserId(string id)
         {
-            var tweetList = await _context.Tweets.Where(s => s.UserId == userid).ToListAsync();
-            return tweetList;
+            return await _tweets.Find(s => s.UserId == id).ToListAsync();
+           
         }       
-        public async Task<bool> PostTweet(Tweet tweetmodel)
+        public async Task<Tweet> PostTweet(Tweet tweetmodel)
         {
-            await _context.Tweets.AddAsync(tweetmodel);
-            int Ischanged = await _context.SaveChangesAsync();
-            return Ischanged > 0;
+            await _tweets.InsertOneAsync(tweetmodel);
+            return tweetmodel;
         }
-       
+
+        public async Task<bool> ReplyToTweet(Tweet tweet)
+        {
+            try
+            {
+                var prevtweet = Builders<Tweet>.Filter.Eq(e => e.Id, tweet.Id);
+                await _tweets.ReplaceOneAsync(prevtweet, tweet);
+                return true;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+            
+        }
+
+        public async Task<bool> LikeToTweet(Tweet tweet)
+        {
+            try
+            {
+                var prevtweet = Builders<Tweet>.Filter.Eq(e => e.Id, tweet.Id);
+                await _tweets.ReplaceOneAsync(prevtweet, tweet);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<Tweet> GetTweetById(string tweetId)
+        {
+            var tweet = await _tweets.Find(t=>t.Id == tweetId).FirstOrDefaultAsync();
+            return tweet;
+        }
+
+        public async Task<bool> DeleteTweet(string tweetId)
+        {
+            try
+            {
+                var  tweetToDelete = Builders<Tweet>.Filter.Eq(e => e.Id, tweetId);
+                await _tweets.DeleteOneAsync(tweetToDelete);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

@@ -63,7 +63,7 @@ namespace TweetAppApi.Controllers
         public async Task<IActionResult> Logout()
         {
             GetUserDetailsFromToken obj = new GetUserDetailsFromToken();
-            int id = obj.GetUserId(Request.Headers[HeaderNames.Authorization].ToString().Split(" ")[1]);
+            string id = obj.GetUserId(Request.Headers[HeaderNames.Authorization].ToString().Split(" ")[1]);
             var result = await _userregrepo.Logout(id);
             return Ok(result);
         }

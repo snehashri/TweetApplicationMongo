@@ -17,13 +17,21 @@ namespace TweetAppApi.Helpers
             return email;
         }
 
-        public int GetUserId(string token)
+        public string GetUserId(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var decodedValue = handler.ReadJwtToken(token);
             var d = decodedValue.Claims.ToList();
-            int id = Int32.Parse(d[1].Value);
+            string id = d[1].Value.ToString();
             return id;
+        }
+        public string GetUsername(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var decodedValue = handler.ReadJwtToken(token);
+            var d = decodedValue.Claims.ToList();
+            string username = d[2].Value.ToString();
+            return username;
         }
 
 

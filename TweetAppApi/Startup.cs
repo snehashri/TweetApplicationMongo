@@ -18,6 +18,7 @@ using System.Text;
 using TweetApp.Service.Services;
 using TweetApp.Domain.Repository;
 using TweetApp.Domain.DbSettings;
+using Newtonsoft.Json.Serialization;
 
 namespace TweetAppApi
 {
@@ -43,10 +44,16 @@ namespace TweetAppApi
             services.AddScoped<ITweetRepository, TweetRepository>();
             services.AddScoped<ITweetService, TweetService>();
 
+            services.AddSingleton<IDbClient, DbClient>();
+
             services.Configure<TweetAppDatabaseSettings>
                 (Configuration.GetSection(nameof(TweetAppDatabaseSettings)));
 
-           
+            //JSON serializer
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
+                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver
+                 = new DefaultContractResolver());
 
             //cors
             services.AddCors();
