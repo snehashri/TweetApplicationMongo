@@ -13,6 +13,8 @@ namespace TweetApp.Service.ModelDto
         public string Message { get; set; }
         public DateTime AddedDate { get; set; }        
         public string UserId { get; set; }
+        public UserDto user { get; set; }
+        public string Imageurl { get; set; }
         public IList<Reply> TweetReplies { get; set; }
         public IList<UserDto> Likes { get; set; }
     }

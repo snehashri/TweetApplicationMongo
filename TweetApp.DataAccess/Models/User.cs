@@ -20,6 +20,7 @@ namespace TweetApp.Domain.Models
         public string Phone { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public string ProfileImg { get; set; }
         public bool IsActive { get; set; }
 
         public IList<Tweet> Tweets { get; set; }

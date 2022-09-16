@@ -17,6 +17,7 @@ namespace TweetApp.Domain.Models
         public string UserId { get; set; }
         public User user { get; set; }
         public DateTime AddedDate { get; set; }
+        public string Imageurl { get; set; }
         public IList<Reply> TweetReplies { get; set; }
         public IList<User> Likes { get; set; }
 

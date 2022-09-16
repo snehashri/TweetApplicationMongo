@@ -133,6 +133,8 @@ namespace TweetApp.Service.Services
 
                 }
                 tweetmodel.AddedDate = DateTime.Now;
+                var thisuser = _mapper.Map<UserDto>(await _userrepo.GetUserById(tweetmodel.UserId));
+                tweetmodel.user = thisuser;
                 var res = await _tweetrepo.PostTweet(_mapper.Map<Tweet>(tweetmodel));
                 return new ServiceResponse<bool>()
                 {
@@ -142,11 +144,11 @@ namespace TweetApp.Service.Services
                     Data = true
                 };
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return new ServiceResponse<bool>()
                 {
-                    Message = "something went wrong",
+                    Message = e.Message,
                     StatusCode = 401,
                     Success = false,
                     Data = false

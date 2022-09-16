@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TweetApp.Domain", "TweetApp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TweetApp.Service", "TweetApp.Service\TweetApp.Service.csproj", "{144E6E57-B8C6-420E-B006-489096C6781B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TweetApp.console", "TweetApp.Console\TweetApp.console.csproj", "{841EF47C-F2C2-4841-828B-215D26726BA5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{144E6E57-B8C6-420E-B006-489096C6781B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{144E6E57-B8C6-420E-B006-489096C6781B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{144E6E57-B8C6-420E-B006-489096C6781B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{841EF47C-F2C2-4841-828B-215D26726BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{841EF47C-F2C2-4841-828B-215D26726BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{841EF47C-F2C2-4841-828B-215D26726BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{841EF47C-F2C2-4841-828B-215D26726BA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

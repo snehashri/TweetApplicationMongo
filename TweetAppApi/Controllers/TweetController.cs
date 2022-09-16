@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Azure.Messaging.ServiceBus;
+using Confluent.Kafka;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
@@ -22,9 +25,11 @@ namespace TweetAppApi.Controllers
     {
 
         private readonly ITweetService _tweetService;
-        public TweetController(ITweetService tweetService)
+        private readonly IConfiguration _config;
+        public TweetController(ITweetService tweetService, IConfiguration config)
         {
             _tweetService = tweetService;
+            _config = config;
         }
 
         [HttpGet]
@@ -106,7 +111,30 @@ namespace TweetAppApi.Controllers
         [Route("delete/{id}")]
         public async Task<IActionResult> DeleteTweet( [FromRoute] string id)
         {
+            GetUserDetailsFromToken obj = new GetUserDetailsFromToken();
+            string username = obj.GetUsername(Request.Headers[HeaderNames.Authorization].ToString().Split(" ")[1]);
             var result = await _tweetService.DeleteTweet(id);
+            /* using (var producer =
+                  new ProducerBuilder<Null, string>(new ProducerConfig { BootstrapServers = "localhost:9092" }).Build())
+             {
+                 try
+                 {
+                     Console.WriteLine(producer.ProduceAsync("tweet_app", new Message<Null, string> { Value = username + " deleted a tweet with Id "+id })
+                         .GetAwaiter()
+                         .GetResult());
+                 }
+                 catch (Exception e)
+                 {
+                     Console.WriteLine($"Oops, something went wrong: {e}");
+                 }
+             }*/
+            string message = username + " deleted a tweet with Id " + id + " on " + DateTime.Now;
+            string connectionstr = _config.GetValue<string>("sbConnString");
+            var client = new ServiceBusClient(connectionstr);
+            var sender = client.CreateSender("tweet-app-messaging");
+            var sbmsg = new ServiceBusMessage(message);
+            await sender.SendMessageAsync(sbmsg);
+
             return Ok(result);
         }
 

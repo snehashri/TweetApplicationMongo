@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Azure.Messaging.ServiceBus;
+using Confluent.Kafka;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
@@ -21,9 +24,11 @@ namespace TweetAppApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserRegistrationService _userregrepo;
-        public AuthController(IUserRegistrationService userregrepo)
+        private readonly IConfiguration _config;
+        public AuthController(IUserRegistrationService userregrepo,IConfiguration config)
         {
             _userregrepo = userregrepo;
+            _config = config;
         }
         
         [HttpPost]
@@ -31,6 +36,13 @@ namespace TweetAppApi.Controllers
         public async Task<IActionResult> Register(RegisterModelDto usermodel)
         {
             var result=await _userregrepo.UserRegistration(usermodel);
+            string message = usermodel.Email + " user registerd" + " on " + DateTime.Now;
+            string connectionstr = _config.GetValue<string>("sbConnString");
+            var client = new ServiceBusClient(connectionstr);
+            var sender = client.CreateSender("tweet-app-messaging");
+            var sbmsg = new ServiceBusMessage(message);
+            await sender.SendMessageAsync(sbmsg);
+
             return Ok(result);
 
 
@@ -40,6 +52,13 @@ namespace TweetAppApi.Controllers
         public async Task<IActionResult> Login(LoginModelDto usermodel)
         {
             var result = await _userregrepo.UserLogin(usermodel);
+            string message = usermodel.Email + " logged In " + " on " + DateTime.Now;
+            string connectionstr = _config.GetValue<string>("sbConnString");
+            var client = new ServiceBusClient(connectionstr);
+            var sender = client.CreateSender("tweet-app-messaging");
+            var sbmsg = new ServiceBusMessage(message);
+            await sender.SendMessageAsync(sbmsg);
+
             return Ok(result);
 
 
